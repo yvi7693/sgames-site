@@ -1,0 +1,105 @@
+/* =========================================================
+   Вариант 5 · «Лазурь и ваниль». Только три цвета:
+   белый — меню; синий — подвал, кнопки, текст, акценты; бежевый — оформление страницы игры.
+   Переменная --honey исторически «медовая» — здесь это синий цвет главной кнопки.
+   ========================================================= */
+
+:root {
+  --ink: #143250;
+  --slate: #3a5470;
+  --sea: #156da3;
+  --muted: #5c6f84;
+  --paper: #f7f9fc;
+  --mist: #e3ebf3;
+  --line: rgba(20, 50, 80, 0.12);
+  --night: #0f2944;
+
+  --cream: #f8f0e3;
+  --oat: #eee0ca;
+  --cocoa: #163452;
+  --cocoa-muted: #6a7888;
+  --blush: #e0cdb0;
+  --dusty: #156da3;
+
+  --honey: #156da3;
+  --honey-hover: #1a7fbd;
+  --honey-ink: #ffffff;
+
+  --card: #ffffff;
+  --hero-bg: #0f2944;
+  --hero-media: #17314f;
+  color-scheme: light;
+}
+.page-game { --line: rgba(22, 52, 82, 0.14); }
+
+:root[data-theme="dark"] {
+  --ink: #e8eef5;
+  --slate: #b9c7d6;
+  --sea: #3592cc;
+  --muted: #93a5b9;
+  --paper: #0b1929;
+  --mist: #17314f;
+  --line: rgba(232, 238, 245, 0.12);
+  --night: #07111d;
+
+  --cream: #10233a;
+  --oat: #17314f;
+  --cocoa: #f3eadc;
+  --cocoa-muted: #cabda8;
+  --blush: #cabda8;
+  --dusty: #3592cc;
+
+  --honey: #3592cc;
+  --honey-hover: #1a7fbd;
+
+  --card: #10233a;
+  color-scheme: dark;
+}
+[data-theme="dark"] .page-game { --line: rgba(241, 232, 218, 0.14); }
+
+/* Меню всегда белое — и в тёмной теме: возвращаем меню светлые токены */
+.site-nav { background: rgba(255, 255, 255, 0.92); }
+[data-theme="dark"] .site-nav {
+  --ink: #143250; --slate: #3a5470; --mist: #e3ebf3;
+  color: #143250; border-color: rgba(255, 255, 255, 0.6);
+}
+.menu-toggle { background: #143250; color: #fff; }
+
+/* Синие и бежевые тона вместо тёплых в компонентах */
+.contact-tile { background: var(--card); }
+.hero-cinema { background: var(--hero-bg); }
+.hero-cinema .hero-media, .shrink-frame { background: var(--hero-media); color: #f8f0e3; }
+.hero-shade {
+  background:
+    linear-gradient(to top, rgba(15, 41, 68, 0.7), rgba(15, 41, 68, 0) 45%),
+    rgba(15, 41, 68, calc(var(--r, 0) * 0.15 + var(--p, 0) * 0.5));
+}
+.curtain { box-shadow: 0 -20px 50px -20px rgba(20, 50, 80, 0.35); }
+.mini-footer a:hover { color: #eee0ca; }
+
+[data-theme="dark"] .person-card { background: #07111d; }
+[data-theme="dark"] .contact-icon { background: var(--honey); color: #fff; }
+[data-theme="dark"] .social-icons a:hover { background: var(--honey); border-color: var(--honey); color: #fff; }
+[data-theme="dark"] .mini-footer { border-top: 1px solid var(--line); }
+
+.shrink-frame { box-shadow: 0 30px 60px -35px rgba(20, 50, 80, calc(0.5 * var(--k))); }
+
+/* ---------- Переключатель темы ---------- */
+.theme-toggle {
+  flex: none; display: grid; place-items: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  background: transparent; color: inherit; cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.3s ease;
+}
+.theme-toggle:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+.theme-toggle:active { transform: rotate(-20deg) scale(0.95); }
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle .i-sun { display: none; }
+[data-theme="dark"] .theme-toggle .i-sun { display: block; }
+[data-theme="dark"] .theme-toggle .i-moon { display: none; }
+
+/* Плавная смена темы — только в момент переключения */
+.theme-anim, .theme-anim *, .theme-anim *::before, .theme-anim *::after {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, fill 0.35s ease !important;
+}

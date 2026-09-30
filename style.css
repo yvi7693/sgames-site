@@ -1,0 +1,610 @@
+/* =========================================================
+   S.Games — редакционная версия (референс: remedyeditorial.com)
+   Студия: холодная бумага + navy из лого, гротеск Manrope, моно-подписи.
+   Игра (главная): тёплый крем, курсив Fraunces в подписях, медовый призыв.
+   Мост: одинаковые меню-пилюля, сетка и кнопки, а внизу каждой страницы
+   фон «рассыпается» пикселями в ночной navy футера студии.
+   ========================================================= */
+
+:root {
+  /* Студия — из лого */
+  --ink: #13233a;
+  --slate: #3a4b61;
+  --sea: #0a78b0;
+  --muted: #5d6d81;
+  --paper: #f6f8fb;
+  --mist: #e4ebf2;
+  --line: rgba(19, 35, 58, 0.14);
+  --night: #0f1c2d;
+
+  /* Игра */
+  --cream: #fbf4e8;
+  --oat: #f3e5cf;
+  --cocoa: #4a372a;
+  --cocoa-muted: #7a6353;
+  --blush: #eab9a5;
+  --dusty: #7f9cb9;
+
+  /* Мост */
+  --honey: #efa94a;
+  --honey-hover: #f5b963;
+  --honey-ink: #3a2811;
+
+  --f-ui: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-cozy: "Fraunces", Georgia, serif;
+  --f-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --gutter: clamp(16px, 3vw, 48px);
+  --maxw: 1320px;
+  --radius: 14px;
+  --nav-top: 14px;
+  --nav-h: 64px;
+
+  /* цвет страницы: студийные — бумага, страница игры — крем */
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --fg-muted: var(--muted);
+  --accent: var(--sea);
+}
+.page-game { --bg: var(--cream); --fg: var(--cocoa); --fg-muted: var(--cocoa-muted); --accent: var(--cocoa); --line: rgba(74, 55, 42, 0.16); }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--f-ui); font-size: 17px; line-height: 1.55;
+  color: var(--fg); background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img, video, canvas { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; }
+
+.container { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 100; padding: 10px 16px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none; }
+.skip-link:focus { top: 12px; }
+:focus-visible { outline: 2px solid var(--sea); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- Плейсхолдеры этапа архитектуры ---------- */
+.ph { outline: 1.5px dashed currentColor; outline-offset: -1.5px; opacity: 0.55; }
+.ph-text { background: repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 4px) bottom / 100% 1px no-repeat; opacity: 0.65; }
+.ph-box { display: grid; place-items: center; text-align: center; padding: 16px; font-family: var(--f-mono); font-size: 0.75rem; letter-spacing: 0.04em; border-radius: inherit; }
+.ph-box::before { content: attr(data-ph); max-width: 34ch; }
+
+/* ---------- Типографика ---------- */
+.label { font-family: var(--f-mono); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+.h-section { font-size: clamp(1.7rem, 2.8vw, 2.4rem); }
+.lead { font-size: clamp(1.02rem, 1.3vw, 1.15rem); color: var(--fg-muted); max-width: 46ch; }
+.italic { font-family: var(--f-cozy); font-style: italic; font-weight: 400; letter-spacing: 0; }
+
+/* ---------- Кнопки: пилюли с разрядкой ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 0 26px;
+  border: 1.5px solid currentColor; border-radius: 999px;
+  background: transparent;
+  font-family: var(--f-ui); font-size: 0.86rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.btn:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.btn:active { transform: translateY(1px); }
+.btn svg { width: 16px; height: 16px; }
+.btn-honey { background: var(--honey); border-color: var(--honey); color: var(--honey-ink); }
+.btn-honey:hover { background: var(--honey-hover); border-color: var(--honey-hover); color: var(--honey-ink); }
+
+/* =========================================================
+   Меню — как в варианте 1: плавающая пилюля, скользящий индикатор,
+   на телефоне — полноэкранное меню
+   ========================================================= */
+.site-nav {
+  position: fixed; z-index: 50;
+  top: var(--nav-top); left: 50%; transform: translateX(-50%);
+  width: min(calc(100% - 24px), 760px); height: var(--nav-h);
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(160%) blur(16px); -webkit-backdrop-filter: saturate(160%) blur(16px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 10px 30px -18px rgba(21, 37, 58, 0.45);
+  border: 1px solid rgba(21, 37, 58, 0.12);
+  color: var(--ink);
+}
+.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; font-weight: 800; letter-spacing: -0.01em; text-decoration: none; }
+.brand img { width: 30px; height: 34px; object-fit: contain; }
+.brand span { font-size: 1.05rem; }
+.nav-links { position: relative; display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
+.nav-links a {
+  position: relative; z-index: 1; display: block;
+  padding: 10px 16px; border-radius: 999px;
+  font-size: 0.95rem; font-weight: 600; text-decoration: none; color: var(--slate);
+  transition: color 0.2s ease;
+}
+.nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--ink); }
+.nav-indicator {
+  position: absolute; z-index: 0; top: 0; left: 0; height: 100%;
+  border-radius: 999px; background: var(--mist); opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.35s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.2s ease;
+}
+.nav-cta { min-height: 44px; padding: 0 18px; font-size: 0.78rem; }
+
+.menu-toggle { display: none; width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--ink); color: #fff; cursor: pointer; place-items: center; }
+.menu-toggle span, .menu-toggle span::before, .menu-toggle span::after { display: block; width: 18px; height: 2px; border-radius: 2px; background: currentColor; transition: transform 0.3s ease, background-color 0.2s ease; }
+.menu-toggle span { position: relative; }
+.menu-toggle span::before, .menu-toggle span::after { content: ""; position: absolute; left: 0; }
+.menu-toggle span::before { top: -6px; }
+.menu-toggle span::after { top: 6px; }
+.menu-open .menu-toggle span { background: transparent; }
+.menu-open .menu-toggle span::before { transform: translateY(6px) rotate(45deg); }
+.menu-open .menu-toggle span::after { transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-menu {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: calc(var(--nav-h) + 40px) 24px 32px;
+  background: var(--paper); color: var(--ink);
+  opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s;
+}
+.menu-open .mobile-menu { opacity: 1; visibility: visible; }
+.mobile-menu ul { list-style: none; margin: 0 0 auto; padding: 0; }
+.mobile-menu li { overflow: hidden; }
+.mobile-menu li a {
+  display: block; padding: 6px 0;
+  font-size: clamp(2.4rem, 11vw, 3.4rem); font-weight: 800; letter-spacing: -0.03em; text-decoration: none;
+  transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.mobile-menu li a[aria-current="page"] { color: var(--sea); }
+.menu-open .mobile-menu li a { transform: none; }
+.menu-open .mobile-menu li:nth-child(2) a { transition-delay: 0.05s; }
+.menu-open .mobile-menu li:nth-child(3) a { transition-delay: 0.1s; }
+.mobile-menu .btn { width: 100%; margin-top: 24px; }
+.mobile-social { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 20px; font-size: 0.9rem; font-weight: 600; color: var(--muted); }
+.mobile-social a { text-decoration: none; }
+@media (max-width: 720px) {
+  .nav-links, .nav-cta { display: none; }
+  .menu-toggle { display: grid; }
+  .site-nav { padding-left: 16px; }
+}
+@media (min-width: 721px) { .mobile-menu { display: none; } }
+
+/* ---------- Появление при прокрутке ---------- */
+[data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+[data-reveal].is-in { opacity: 1; transform: none; }
+
+/* =========================================================
+   Редакционная строка: слева заголовок, справа текст
+   ========================================================= */
+.row {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 22px;
+  padding-block: clamp(64px, 9vw, 128px);
+}
+.row > div:first-child { display: flex; justify-content: center; }
+.row-body { display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
+.row-body p { color: var(--fg-muted); max-width: 46ch; margin-inline: auto; }
+.row-title { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.row-title img { width: clamp(40px, 5vw, 60px); height: auto; }
+.row .h-section { max-width: 22ch; }
+
+/* ---------- Гигантский вордмарк ---------- */
+.wordmark {
+  display: block;
+  font-weight: 800; letter-spacing: 0.08em; line-height: 0.9;
+  font-size: clamp(3.4rem, 15.2vw, 13.5rem);
+  text-align: center; white-space: nowrap;
+  color: var(--accent);
+  padding-left: 0.08em;
+}
+.page-game .wordmark { font-family: var(--f-cozy); font-weight: 600; letter-spacing: 0.01em; font-size: clamp(3rem, 13.4vw, 12rem); color: var(--cocoa); }
+
+/* =========================================================
+   Главная: первый экран как на remedygames.com —
+   трейлер во весь экран «прилипает» к верху, страница наезжает на него занавесом
+   ========================================================= */
+.hero-cinema { --p: 0; --r: 0; /* r: 0 — только трейлер, 1 — хук и вишлист проявились */ position: sticky; top: 0; z-index: 0; height: 100svh; overflow: hidden; background: #2e241d; }
+.hero-cinema .hero-media { position: absolute; inset: 0; background: #3b2f27; color: #e9dccb; }
+.hero-media video { transform: scale(calc(1 + var(--p) * 0.06)); }
+.hero-media.ph { outline-offset: -12px; opacity: 1; }
+.hero-shade {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(20, 14, 10, 0.7), rgba(20, 14, 10, 0) 45%),
+    rgba(20, 14, 10, calc(var(--r, 0) * 0.15 + var(--p) * 0.5));
+}
+.hero-foot {
+  position: absolute; left: 50%; bottom: clamp(88px, 12vh, 128px);
+  transform: translate(-50%, calc((1 - var(--r)) * 24px + var(--p) * -40px));
+  width: calc(100% - 2 * var(--gutter));
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  text-align: center; color: #fff;
+  opacity: calc(var(--r) - var(--p) * 1.2);
+  pointer-events: none;
+}
+.hero-foot.is-shown { pointer-events: auto; }
+.hook { font-size: clamp(1.15rem, 1.8vw, 1.5rem); font-weight: 600; letter-spacing: -0.015em; max-width: 26ch; }
+.hero-cinema .sound-toggle { right: auto; left: 50%; bottom: 28px; transform: translateX(-50%); }
+.hero-spacer { height: 70svh; }
+
+.curtain {
+  position: relative; z-index: 1;
+  background: var(--bg);
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -20px 50px -20px rgba(20, 14, 10, 0.35);
+}
+
+/* ---------- Видео-слоты ---------- */
+.video-slot { position: relative; overflow: hidden; background: var(--oat); color: var(--cocoa-muted); }
+.page-studio .video-slot { background: var(--mist); color: var(--slate); }
+.video-slot video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.video-slot .ph-box { position: absolute; inset: 0; }
+.video-slot.is-ready { outline: none; opacity: 1; }
+.video-slot.is-ready video { opacity: 1; }
+.video-slot.is-ready .ph-box { display: none; }
+.sound-toggle {
+  position: absolute; right: 14px; bottom: 14px; z-index: 2;
+  display: none; place-items: center; width: 42px; height: 42px;
+  border: 0; border-radius: 50%; background: rgba(19, 35, 58, 0.55); color: #fff; cursor: pointer;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.video-slot.is-ready .sound-toggle { display: grid; }
+.sound-toggle svg { width: 20px; height: 20px; }
+.sound-toggle .i-on, .sound-toggle[aria-pressed="true"] .i-off { display: none; }
+.sound-toggle[aria-pressed="true"] .i-on { display: block; }
+
+/* =========================================================
+   Фичи «лесенкой» в две колонки (как Featured work)
+   ========================================================= */
+.works { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 40px); padding-bottom: clamp(32px, 5vw, 64px); text-align: center; }
+.work:nth-child(3n + 2) { margin-top: clamp(48px, 8vw, 120px); }
+.work-title { font-size: clamp(1.05rem, 1.4vw, 1.25rem); font-weight: 700; letter-spacing: -0.01em; margin: 0 auto 16px; max-width: 30ch; }
+.work-title .italic { font-size: 1.08em; }
+.work .video-slot { aspect-ratio: 16 / 10; border-radius: var(--radius); }
+.work:hover .video-slot video { transform: scale(1.03); }
+.work-num { display: block; margin-bottom: 8px; color: var(--dusty); }
+@media (max-width: 760px) {
+  .works { grid-template-columns: 1fr; max-width: 520px; }
+  .work:nth-child(n) { margin-top: 0; }
+}
+
+/* ---------- Футер ---------- */
+.footer { background: var(--night); color: #c9d4e0; margin-top: clamp(32px, 6vw, 80px); padding: clamp(48px, 7vw, 88px) 0 28px; }
+.footer { text-align: center; }
+.footer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 200px)); justify-content: center; gap: 32px clamp(24px, 5vw, 80px); align-items: start; }
+.footer-grid > .footer-brand { grid-column: 1 / -1; justify-self: center; margin-bottom: 12px; }
+.footer-brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: #fff; }
+.footer-brand img { width: 44px; height: auto; filter: brightness(1.45) saturate(1.1); }
+.footer-brand span { font-weight: 800; font-size: 1.6rem; letter-spacing: 0.2em; }
+.footer h3 { font-size: 0.86rem; font-weight: 700; color: #fff; margin-bottom: 12px; letter-spacing: 0; }
+.footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.footer a { text-decoration: none; font-size: 0.9rem; }
+.footer a:hover { color: var(--honey); }
+.footer-legal { grid-column: 1 / -1; display: flex !important; justify-content: center; gap: 24px !important; font-size: 0.8rem; }
+.footer-copy { margin-top: 36px; font-size: 0.78rem; color: #6f86a0; }
+@media (max-width: 600px) { .footer-grid { grid-template-columns: 1fr; } }
+
+/* =========================================================
+   Студийные страницы
+   ========================================================= */
+.page-top { padding-top: calc(var(--nav-top) + var(--nav-h) + clamp(32px, 5vw, 64px)); }
+.studio-visual { aspect-ratio: 21 / 9; border-radius: var(--radius); background: var(--mist); color: var(--slate); }
+@media (max-width: 760px) { .studio-visual { aspect-ratio: 4 / 3; } }
+
+/* Команда: одно общее фото, наведение (фокус, тап) на человека показывает карточку */
+.team-photo { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius); background: var(--mist); color: var(--slate); }
+.team-photo.ph { opacity: 1; }
+.team-photo .ph-box { position: absolute; inset: 0; opacity: 0.6; align-items: end; padding-bottom: 20px; }
+.person {
+  position: absolute; left: var(--x); top: var(--y);
+  width: clamp(56px, 11%, 140px); aspect-ratio: 3 / 5;
+  transform: translate(-50%, -50%);
+  border: 0; padding: 0; background: none; cursor: pointer;
+  border-radius: 999px;
+}
+.person-dot {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px dashed currentColor; font-family: var(--f-mono); font-size: 0.75rem; color: var(--slate);
+  transition: opacity 0.2s ease;
+}
+.person::after { /* мягкая подсветка человека */
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 40px 10px rgba(255, 255, 255, 0.25);
+  opacity: 0; transition: opacity 0.25s ease;
+}
+.person-card {
+  position: absolute; left: 50%; bottom: calc(100% + 10px); z-index: 3;
+  width: max-content; max-width: 220px;
+  display: grid; gap: 2px; padding: 12px 14px;
+  border-radius: 12px; background: var(--ink); color: #fff; text-align: center;
+  box-shadow: 0 16px 30px -16px rgba(15, 28, 45, 0.7);
+  opacity: 0; transform: translate(-50%, 8px); pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.person-card strong { font-size: 0.98rem; }
+.person-card span { font-family: var(--f-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #9fc3e0; }
+.person-card em { font-style: normal; font-size: 0.82rem; color: #c9d4e0; margin-top: 4px; }
+.person:hover::after, .person:focus-visible::after, .person.is-active::after { opacity: 1; }
+.person:hover .person-card, .person:focus-visible .person-card, .person.is-active .person-card { opacity: 1; transform: translate(-50%, 0); }
+.team-photo:has(.person:hover, .person.is-active) .person:not(:hover):not(.is-active) .person-dot { opacity: 0.3; }
+@media (max-width: 600px) { .team-photo { aspect-ratio: 4 / 3; } .person-card { max-width: 160px; } }
+
+.teaser { display: grid; gap: 18px; width: 100%; max-width: 560px; margin-inline: auto; text-decoration: none; }
+.teaser .video-slot { aspect-ratio: 16 / 10; border-radius: var(--radius); background: var(--oat); color: var(--cocoa-muted); }
+
+/* Контакты */
+.contact-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; max-width: 720px; text-align: center; }
+.contact-cols > div { display: flex; flex-direction: column; align-items: center; }
+.contact-cols h3 { font-size: 1rem; margin-bottom: 8px; }
+.contact-cols p { font-size: 0.95rem; margin-bottom: 14px; }
+.email-link { font-weight: 700; text-decoration: none; word-break: break-all; }
+@media (max-width: 520px) { .contact-cols { grid-template-columns: 1fr; } }
+
+.socials { list-style: none; margin: 0 auto; padding: 0; width: 100%; max-width: 720px; border-top: 1px solid var(--line); }
+.socials a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 18px 2px; border-bottom: 1px solid var(--line); text-decoration: none; font-size: clamp(1.2rem, 2.2vw, 1.6rem); font-weight: 700; letter-spacing: -0.02em; transition: color 0.2s ease, padding 0.3s ease; }
+.socials a:hover { color: var(--sea); }
+.socials .label { display: inline-flex; align-items: center; gap: 6px; color: var(--fg-muted); }
+.socials svg { width: 20px; height: 20px; flex: none; }
+
+.factsheet { display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: 720px; margin: 0 auto; border-top: 1px solid var(--line); }
+.factsheet dt { text-align: right; }
+.factsheet dd { text-align: left; }
+.factsheet dt, .factsheet dd { margin: 0; padding: 12px 0 12px 16px; border-bottom: 1px solid var(--line); }
+.factsheet dt { padding-right: 16px; font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); align-self: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .nav-panel, .video-slot video { transition: none; }
+}
+
+/* =========================================================
+   Вариант 3: трейлер сжимается из полного экрана в окно по центру
+   JS пишет --k: 0 — трейлер на весь экран, 1 — окно по центру.
+   Трансформация считается от «конечного» окна, поэтому раскладка
+   (окно → хук → кнопка) одна и та же, меняется только масштаб.
+   ========================================================= */
+.shrink-hero { position: relative; height: 175svh; }
+.shrink-stage {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 22px;
+  padding: calc(var(--nav-top) + var(--nav-h) + 20px) var(--gutter) 28px;
+}
+.shrink-frame {
+  --k: 0; --s: 1; --dx: 0px; --dy: 0px;
+  position: relative; flex: none;
+  width: min(100%, 1040px, calc((100svh - var(--nav-top) - var(--nav-h) - 230px) * 16 / 9));
+  min-width: min(100%, 300px);
+  aspect-ratio: 16 / 9;
+  border-radius: calc(var(--radius) * var(--k) / max(var(--s) - (var(--s) - 1) * var(--k), 1));
+  background: #3b2f27; color: #e9dccb;
+  transform:
+    translate(calc(var(--dx) * (1 - var(--k))), calc(var(--dy) * (1 - var(--k))))
+    scale(calc(var(--s) - (var(--s) - 1) * var(--k)));
+  transform-origin: 50% 50%;
+  z-index: 2;
+  will-change: transform;
+  box-shadow: 0 30px 60px -35px rgba(74, 55, 42, calc(0.55 * var(--k)));
+}
+.shrink-frame.ph { opacity: 1; outline-color: rgba(233, 220, 203, 0.5); }
+.shrink-frame .ph-box { transform: scale(calc(1 / (var(--s) - (var(--s) - 1) * var(--k)))); }
+.shrink-frame .sound-toggle { opacity: var(--k); }
+.shrink-foot {
+  --k: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center;
+  opacity: clamp(0, calc((var(--k) - 0.6) * 2.5), 1);
+  transform: translateY(calc((1 - var(--k)) * 30px));
+}
+.shrink-foot .hook { color: var(--cocoa); }
+
+/* Меню появляется только после начала прокрутки */
+.nav-autohide .site-nav { transition: opacity 0.35s ease, transform 0.35s ease; }
+.nav-autohide:not(.nav-shown) .site-nav { opacity: 0; transform: translate(-50%, -24px); pointer-events: none; }
+
+.after-hero { position: relative; }
+
+/* =========================================================
+   Общее для всех вариантов: Team, Contacts, маленький футер, фиксы меню.
+   Переменные с запасными значениями — блок одинаково работает
+   и с токенами варианта 1 (--s-*), и вариантов 2–3.
+   ========================================================= */
+.team-page, .contact-page, .mini-footer {
+  --x-ink: var(--ink, var(--s-ink));
+  --x-muted: var(--muted, var(--s-muted));
+  --x-line: var(--line, var(--s-line));
+  --x-mist: var(--mist, var(--s-mist));
+  --x-night: var(--night, var(--s-night));
+  --x-radius: var(--radius, var(--r-studio));
+  --x-mono: var(--f-mono, ui-monospace, "SFMono-Regular", Menlo, monospace);
+}
+
+/* Меню: без анимации при первой установке и пересчёте индикатора */
+.nav-indicator.no-anim { transition: none !important; }
+
+/* ---------- Team: заголовок, общее фото, текст ---------- */
+.team-page {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: clamp(24px, 3.5vw, 40px);
+  padding-top: calc(var(--nav-top, 14px) + var(--nav-h) + clamp(40px, 7vw, 88px));
+  padding-bottom: clamp(64px, 9vw, 120px);
+}
+.team-title { font-size: clamp(2rem, 4.5vw, 3.2rem); letter-spacing: -0.03em; color: var(--x-ink); }
+.team-page .team-photo { width: 100%; }
+.team-text { max-width: 60ch; color: var(--x-muted); font-size: clamp(1.02rem, 1.4vw, 1.2rem); line-height: 1.6; }
+
+/* ---------- Contacts: месседж, Discord и почта, иконки соцсетей ---------- */
+.contact-page {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: clamp(32px, 5vw, 56px);
+  min-height: calc(100svh - 60px);
+  justify-content: center;
+  padding-top: calc(var(--nav-top, 14px) + var(--nav-h) + clamp(32px, 5vw, 64px));
+  padding-bottom: clamp(56px, 8vw, 96px);
+}
+.contact-message { max-width: 24ch; font-size: clamp(1.8rem, 3.6vw, 2.8rem); letter-spacing: -0.025em; line-height: 1.15; color: var(--x-ink); }
+.contact-duo { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px, 2vw, 20px); width: 100%; max-width: 760px; }
+.contact-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: clamp(28px, 4vw, 40px) 20px;
+  border: 1px solid var(--x-line); border-radius: calc(var(--x-radius) + 6px);
+  background: #fff; color: var(--x-ink); text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+a.contact-tile:hover, .contact-tile:focus-within { transform: translateY(-3px); border-color: transparent; box-shadow: 0 20px 40px -24px rgba(21, 37, 58, 0.45); }
+.contact-icon { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 6px; border-radius: 50%; background: var(--x-ink); color: #fff; }
+.contact-icon svg { width: 26px; height: 26px; }
+.contact-name { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.01em; }
+.contact-action { color: var(--x-muted); font-size: 0.95rem; text-decoration: none; word-break: break-all; }
+a.contact-action:hover { color: var(--x-ink); text-decoration: underline; text-underline-offset: 4px; }
+.contact-copy {
+  margin-top: 4px; padding: 6px 14px;
+  border: 1px solid var(--x-line); border-radius: 999px; background: none; cursor: pointer;
+  font-family: var(--x-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--x-muted);
+}
+.contact-copy:hover { color: var(--x-ink); border-color: var(--x-ink); }
+@media (max-width: 560px) { .contact-duo { grid-template-columns: 1fr; } }
+
+.social-icons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; list-style: none; margin: 0; padding: 0; }
+.social-icons a {
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--x-line); color: var(--x-ink);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.social-icons a:hover { background: var(--x-ink); color: #fff; border-color: var(--x-ink); transform: translateY(-2px); }
+.social-icons svg { width: 20px; height: 20px; }
+
+/* ---------- Маленький футер: одна строка ---------- */
+.mini-footer { background: var(--x-night); color: #8fa1b5; font-size: 0.82rem; padding: 18px 0; }
+.mini-footer-inner { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 24px; }
+.mini-footer a { color: #c9d4e0; text-decoration: none; }
+.mini-footer a:hover { color: var(--honey); }
+
+/* Меню: если открыто мобильное меню, пилюля видна даже на первом экране */
+.nav-autohide.menu-open .site-nav { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+
+/* =========================================================
+   Вариант 2: фичи — «Дорожка из лапок»
+   ========================================================= */
+.features-trail { padding-block: clamp(64px, 9vw, 128px); }
+.features-title { text-align: center; margin: 0 auto clamp(40px, 6vw, 72px); }
+.trail { --lane: clamp(96px, 12vw, 160px); position: relative; display: grid; gap: clamp(120px, 18vh, 200px); padding-top: clamp(80px, 12vh, 140px); }
+
+.trail-stop {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: minmax(0, 1fr) var(--lane) minmax(0, 1fr);
+  grid-template-areas: "media marker text";
+  align-items: center;
+}
+.trail-stop:nth-child(odd) { grid-template-areas: "text marker media"; } /* :nth-child считает и слой следов */
+.trail-media { grid-area: media; aspect-ratio: 16 / 10; border-radius: var(--radius); }
+.trail-marker {
+  grid-area: marker; justify-self: center;
+  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  border: 1.5px solid var(--line); background: var(--bg);
+  font-family: var(--f-mono); font-size: 0.8rem; letter-spacing: 0.08em; color: var(--fg-muted);
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.trail-marker.is-reached { background: var(--honey); border-color: var(--honey); color: var(--honey-ink); transform: scale(1.08); }
+.trail-text { grid-area: text; max-width: 36ch; }
+.trail-stop:nth-child(even) .trail-text { justify-self: start; text-align: left; }
+.trail-stop:nth-child(odd) .trail-text { justify-self: end; text-align: right; }
+.trail-title { font-size: clamp(1.4rem, 2.6vw, 2.1rem); font-weight: 600; letter-spacing: -0.02em; }
+.trail-text p { margin-top: 10px; color: var(--fg-muted); }
+.trail-text, .trail-media { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.trail-stop.is-reached .trail-text, .trail-stop.is-reached .trail-media { opacity: 1; transform: none; }
+.trail-stop.is-reached .trail-media.ph { opacity: 0.6; }
+
+/* Следы: подушечка и четыре пальчика, без картинок */
+.trail-paws { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.paw {
+  position: absolute; left: 0; top: 0; width: 22px; height: 22px; margin: -11px 0 0 -11px;
+  background:
+    radial-gradient(circle at 50% 70%, currentColor 0 27%, transparent 29%),
+    radial-gradient(circle at 20% 40%, currentColor 0 10%, transparent 12%),
+    radial-gradient(circle at 38% 20%, currentColor 0 10%, transparent 12%),
+    radial-gradient(circle at 62% 20%, currentColor 0 10%, transparent 12%),
+    radial-gradient(circle at 80% 40%, currentColor 0 10%, transparent 12%);
+  color: var(--cocoa);
+  opacity: 0; transform: translate(var(--px), var(--py)) rotate(var(--r)) scale(0.4);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.paw.is-on { opacity: 0.32; transform: translate(var(--px), var(--py)) rotate(var(--r)) scale(1); }
+
+@media (max-width: 760px) {
+  .trail { --lane: 56px; gap: 96px; padding-top: 64px; }
+  .trail-stop, .trail-stop:nth-child(odd) {
+    grid-template-columns: var(--lane) minmax(0, 1fr);
+    grid-template-areas: "marker media" ". text";
+    row-gap: 16px;
+  }
+  .trail-stop:nth-child(n) .trail-text { justify-self: start; text-align: left; }
+  .trail-marker { width: 40px; height: 40px; }
+  .paw { width: 16px; height: 16px; margin: -8px 0 0 -8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paw, .trail-text, .trail-media, .trail-marker { transition: none; }
+}
+
+/* =========================================================
+   Вариант 5: плашка Discord, логотип в конце, сердечко на кнопке Steam
+   ========================================================= */
+.discord-sec { padding-block: clamp(48px, 7vw, 96px); }
+.discord-panel {
+  position: relative; overflow: hidden;
+  max-width: 760px; margin-inline: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+  padding: clamp(36px, 5vw, 60px) clamp(20px, 5vw, 56px);
+  border-radius: 28px;
+  background: var(--oat);
+  box-shadow: 0 0 0 1px var(--line);
+}
+/* еле заметные лапки на плашке */
+.discord-panel::before, .discord-panel::after {
+  content: ""; position: absolute; width: 64px; height: 64px; opacity: 0.08; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 70%, currentColor 0 27%, transparent 29%),
+    radial-gradient(circle at 20% 40%, currentColor 0 10%, transparent 12%),
+    radial-gradient(circle at 38% 20%, currentColor 0 10%, transparent 12%),
+    radial-gradient(circle at 62% 20%, currentColor 0 10%, transparent 12%),
+    radial-gradient(circle at 80% 40%, currentColor 0 10%, transparent 12%);
+}
+.discord-panel::before { left: 6%; top: 14%; transform: rotate(-18deg); }
+.discord-panel::after { right: 6%; bottom: 12%; transform: rotate(160deg); }
+.discord-badge {
+  display: grid; place-items: center; width: 60px; height: 60px; margin-bottom: 4px;
+  border-radius: 50%; background: var(--honey); color: #fff;
+  box-shadow: 0 12px 24px -12px var(--honey);
+}
+.discord-badge svg { width: 30px; height: 30px; }
+.discord-panel p { max-width: 46ch; color: var(--fg-muted); }
+.discord-panel .btn { margin-top: 8px; }
+.discord-panel .btn svg { width: 18px; height: 18px; }
+
+/* Небольшой логотип студии над «Made by S.Games» */
+.row > .madeby-title { flex-direction: column; align-items: center; gap: 16px; }
+.madeby-logo { width: 44px; height: auto; opacity: 0.9; }
+[data-theme="dark"] .madeby-logo { filter: brightness(1.6) saturate(1.1); }
+
+/* Сердечко на кнопке Steam: заливается и «бьётся» при наведении */
+a[data-steam] .heart { width: 18px; height: 18px; flex: none; transition: fill 0.25s ease; }
+a[data-steam]:hover .heart, a[data-steam]:focus-visible .heart { fill: currentColor; animation: heart-beat 0.9s ease-in-out infinite; }
+@keyframes heart-beat {
+  0%, 100% { transform: scale(1); }
+  20% { transform: scale(1.25); }
+  40% { transform: scale(0.95); }
+  60% { transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) { a[data-steam]:hover .heart { animation: none; } }
+
+/* =========================================================
+   Вариант 5: контакты — те же карточки Discord и Email, но компактнее
+   ========================================================= */
+.contact-page .contact-duo { max-width: 520px; gap: 12px; }
+.contact-page .contact-tile { gap: 4px; padding: 20px 16px; border-radius: 16px; }
+.contact-page .contact-icon { width: 40px; height: 40px; margin-bottom: 6px; }
+.contact-page .contact-icon svg { width: 20px; height: 20px; }
+.contact-page .contact-name { font-size: 1rem; }
+.contact-page .contact-action { font-size: 0.85rem; }
