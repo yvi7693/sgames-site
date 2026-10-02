@@ -500,14 +500,16 @@ a.contact-action:hover { color: var(--x-ink); text-decoration: underline; text-u
 }
 .trail-stop:nth-child(odd) { grid-template-areas: "text marker media"; } /* :nth-child считает и слой следов */
 .trail-media { grid-area: media; aspect-ratio: 16 / 10; border-radius: var(--radius); }
+/* Номер фичи: тонкий кружок с цифрой шрифтом Fraunces; при достижении спокойно заливается мёдом */
 .trail-marker {
   grid-area: marker; justify-self: center;
-  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
-  border: 1.5px solid var(--line); background: var(--bg);
-  font-family: var(--f-mono); font-size: 0.8rem; letter-spacing: 0.08em; color: var(--fg-muted);
-  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--bg);
+  font-family: var(--f-cozy); font-style: italic; font-weight: 500; font-size: 1.3rem; line-height: 1;
+  color: var(--fg-muted);
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.trail-marker.is-reached { background: var(--honey); border-color: var(--honey); color: var(--honey-ink); transform: scale(1.08); }
+.trail-marker.is-reached { background: var(--honey); border-color: var(--honey); color: var(--honey-ink); transform: scale(1.06); }
 .trail-text { grid-area: text; max-width: 36ch; }
 .trail-stop:nth-child(even) .trail-text { justify-self: start; text-align: left; }
 .trail-stop:nth-child(odd) .trail-text { justify-self: end; text-align: right; }
@@ -531,7 +533,7 @@ a.contact-action:hover { color: var(--x-ink); text-decoration: underline; text-u
   opacity: 0; transform: translate(var(--px), var(--py)) rotate(var(--r)) scale(0.4);
   transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
-.paw.is-on { opacity: 0.32; transform: translate(var(--px), var(--py)) rotate(var(--r)) scale(1); }
+.paw.is-on { opacity: calc(0.32 * var(--o, 1)); transform: translate(var(--px), var(--py)) rotate(var(--r)) scale(1); }
 
 @media (max-width: 760px) {
   .trail { --lane: 56px; gap: 96px; padding-top: 64px; }
@@ -541,7 +543,7 @@ a.contact-action:hover { color: var(--x-ink); text-decoration: underline; text-u
     row-gap: 16px;
   }
   .trail-stop:nth-child(n) .trail-text { justify-self: start; text-align: left; }
-  .trail-marker { width: 40px; height: 40px; }
+  .trail-marker { width: 38px; height: 38px; font-size: 1.05rem; }
   .paw { width: 16px; height: 16px; margin: -8px 0 0 -8px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -608,3 +610,58 @@ a[data-steam]:hover .heart, a[data-steam]:focus-visible .heart { fill: currentCo
 .contact-page .contact-icon svg { width: 20px; height: 20px; }
 .contact-page .contact-name { font-size: 1rem; }
 .contact-page .contact-action { font-size: 0.85rem; }
+
+/* =========================================================
+   Вариант 5: детали из мира игры — пар над чашкой, спящий котик, следы до футера
+   ========================================================= */
+/* Чашка у хука: пар поднимается и тает, три струйки со сдвигом */
+.hook-line { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.cup { width: 34px; height: 34px; flex: none; color: var(--cocoa); overflow: visible; }
+.cup .steam { opacity: 0; animation: steam 3.2s ease-in-out infinite; }
+.cup .steam:nth-child(2) { animation-delay: 1.05s; }
+.cup .steam:nth-child(3) { animation-delay: 2.1s; }
+@keyframes steam {
+  0% { opacity: 0; transform: translateY(3px); }
+  35% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-5px); }
+}
+@media (max-width: 760px) { .cup { width: 28px; height: 28px; } }
+
+/* Спящий котик лежит на правом краю заголовка «Made by S.Games» */
+.madeby-heading { position: relative; }
+.sleepy-cat {
+  position: absolute; right: -0.15em; bottom: calc(100% - 0.14em);
+  width: clamp(64px, 6.5vw, 84px); color: var(--fg-muted);
+}
+.sleepy-cat svg { display: block; width: 100%; height: auto; overflow: visible; }
+.sleepy-cat path { vector-effect: non-scaling-stroke; }
+.cat-body { transform-box: fill-box; transform-origin: 50% 100%; animation: cat-breathe 4s ease-in-out infinite; }
+@keyframes cat-breathe { 50% { transform: scaleY(1.05); } }
+.sleepy-cat i {
+  position: absolute; left: 18%; top: -14px;
+  font: italic 500 0.95rem/1 var(--f-cozy); letter-spacing: 0;
+  opacity: 0; animation: cat-z 4s ease-out infinite;
+}
+.sleepy-cat i + i { font-size: 0.75rem; animation-delay: 2s; }
+@keyframes cat-z {
+  0% { opacity: 0; transform: translate(0, 0); }
+  25% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(-10px, -18px); }
+}
+
+/* Следы в футере: идут вправо и уходят за край, когда футер показался */
+.mini-footer { position: relative; overflow: hidden; }
+.footer-paws { position: absolute; right: 0; top: 50%; width: 150px; height: 0; pointer-events: none; }
+.footer-paws .paw { width: 12px; height: 12px; margin: -6px 0 0 -6px; color: currentColor; }
+.footer-paws .paw:nth-child(1) { left: 0; --px: 0px; --py: -4px; --r: 90deg; --o: 1; transition-delay: 0s; }
+.footer-paws .paw:nth-child(2) { left: 34px; --px: 0px; --py: 4px; --r: 90deg; --o: 0.8; transition-delay: 0.15s; }
+.footer-paws .paw:nth-child(3) { left: 68px; --px: 0px; --py: -4px; --r: 90deg; --o: 0.6; transition-delay: 0.3s; }
+.footer-paws .paw:nth-child(4) { left: 102px; --px: 0px; --py: 4px; --r: 90deg; --o: 0.4; transition-delay: 0.45s; }
+.footer-paws.is-in .paw { opacity: calc(0.5 * var(--o, 1)); transform: translate(var(--px), var(--py)) rotate(var(--r)) scale(1); }
+@media (max-width: 760px) { .footer-paws { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cup .steam { animation: none; opacity: 0.5; }
+  .cat-body, .sleepy-cat i { animation: none; }
+  .footer-paws .paw { transition: none; }
+}

@@ -125,13 +125,20 @@ if (trail) {
     const step = small ? 38 : 48;          // шаг между отпечатками
     const amp = small ? 10 : 26;           // насколько дорожка петляет
     const side = small ? 7 : 10;           // смещение левой/правой лапы
-    // от верха блока к первому номеру, дальше — между номерами
-    const route = [{ x: pts[0].x, y: 0 }, ...pts];
+    // от верха блока к первому номеру, дальше — между номерами,
+    // после последнего — вниз к плашке Discord, следы постепенно тают (дальше их подхватывает футер)
+    const next = trail.closest("section")?.nextElementSibling;
+    const tail = pts[pts.length - 1];
+    const endY = next ? next.getBoundingClientRect().top - box.top + (small ? 24 : 40) : tail.y + 240;
+    const route = [{ x: pts[0].x, y: 0 }, ...pts, { x: tail.x, y: endY }];
+    const lastSeg = route.length - 2;
     let n = 0;
     for (let s = 0; s < route.length - 1; s++) {
       const a = route[s], b = route[s + 1];
       const len = b.y - a.y, dir = s % 2 ? -1 : 1;
-      for (let y = a.y + step / 2; y < b.y - 30; y += step) {
+      // следы не заходят под кружки-номера
+      const end = s === lastSeg ? b.y : b.y - (small ? 32 : 40);
+      for (let y = a.y + (s ? (small ? 32 : 40) : step / 2); y < end; y += step) {
         const t = (y - a.y) / len;
         const x = a.x + (b.x - a.x) * t + dir * amp * Math.sin(Math.PI * t);
         const slope = ((b.x - a.x) + dir * amp * Math.PI * Math.cos(Math.PI * t)) / len; // dx/dy
@@ -144,6 +151,7 @@ if (trail) {
         el.style.setProperty("--px", `${foot * side}px`);
         el.style.setProperty("--py", "0px");
         el.style.setProperty("--r", `${180 - angle}deg`); // пальчики смотрят по ходу движения (вниз)
+        if (s === lastSeg) el.style.setProperty("--o", (1 - 0.85 * t).toFixed(2));
         layer.appendChild(el);
         paws.push({ el, y });
       }
@@ -166,6 +174,14 @@ if (trail) {
   window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(build, 150); });
   document.fonts?.ready.then(build);
   build();
+}
+
+/* ---------- Следы в футере: появляются один за другим, когда футер на экране ---------- */
+const footerPaws = document.querySelector("[data-footer-paws]");
+if (footerPaws) {
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { footerPaws.classList.add("is-in"); o.disconnect(); } }, { threshold: 0.6 }).observe(footerPaws.parentElement);
+  } else footerPaws.classList.add("is-in");
 }
 
 /* ---------- Появление блоков при прокрутке ---------- */

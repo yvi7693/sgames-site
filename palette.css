@@ -1,6 +1,6 @@
 /* =========================================================
-   Вариант 5 · «Лазурь и ваниль». Только три цвета:
-   белый — меню; синий — подвал, кнопки, текст, акценты; бежевый — оформление страницы игры.
+   Палитра «Лазурь и сливки»: синий из «Лазури и ванили», сливочный бежевый из «Глубины лого».
+   Белый — меню; синий — подвал, кнопки, текст, акценты; бежевый — оформление страницы игры.
    Переменная --honey исторически «медовая» — здесь это синий цвет главной кнопки.
    ========================================================= */
 
@@ -14,11 +14,11 @@
   --line: rgba(20, 50, 80, 0.12);
   --night: #0f2944;
 
-  --cream: #f8f0e3;
-  --oat: #eee0ca;
-  --cocoa: #163452;
-  --cocoa-muted: #6a7888;
-  --blush: #e0cdb0;
+  --cream: #faf4e8;
+  --oat: #f3e8d2;
+  --cocoa: #143250;
+  --cocoa-muted: #4e6074;
+  --blush: #ead9b6;
   --dusty: #156da3;
 
   --honey: #156da3;
@@ -28,9 +28,11 @@
   --card: #ffffff;
   --hero-bg: #0f2944;
   --hero-media: #17314f;
+  --foot-text: #92a8be;
+  --foot-link: #cad6e2;
   color-scheme: light;
 }
-.page-game { --line: rgba(22, 52, 82, 0.14); }
+.page-game { --line: rgba(20, 50, 80, 0.14); }
 
 :root[data-theme="dark"] {
   --ink: #e8eef5;
@@ -44,18 +46,20 @@
 
   --cream: #10233a;
   --oat: #17314f;
-  --cocoa: #f3eadc;
-  --cocoa-muted: #cabda8;
-  --blush: #cabda8;
+  --cocoa: #f1ebe0;
+  --cocoa-muted: #c3bbad;
+  --blush: #c3bbad;
   --dusty: #3592cc;
 
   --honey: #3592cc;
-  --honey-hover: #1a7fbd;
+  --honey-hover: #4aa0d8;
 
   --card: #10233a;
+  --foot-text: #93a5b9;
+  --foot-link: #b9c7d6;
   color-scheme: dark;
 }
-[data-theme="dark"] .page-game { --line: rgba(241, 232, 218, 0.14); }
+[data-theme="dark"] .page-game { --line: rgba(241, 235, 224, 0.14); }
 
 /* Меню всегда белое — и в тёмной теме: возвращаем меню светлые токены */
 .site-nav { background: rgba(255, 255, 255, 0.92); }
@@ -65,24 +69,35 @@
 }
 .menu-toggle { background: #143250; color: #fff; }
 
-/* Синие и бежевые тона вместо тёплых в компонентах */
+/* Архитектура: подвал, тени, рамка первого экрана — всё в синем тоне палитры */
 .contact-tile { background: var(--card); }
 .hero-cinema { background: var(--hero-bg); }
-.hero-cinema .hero-media, .shrink-frame { background: var(--hero-media); color: #f8f0e3; }
+.hero-cinema .hero-media, .shrink-frame { background: var(--hero-media); color: #cad6e2; }
+.shrink-frame.ph { outline-color: rgba(202, 214, 226, 0.5); }
 .hero-shade {
   background:
     linear-gradient(to top, rgba(15, 41, 68, 0.7), rgba(15, 41, 68, 0) 45%),
     rgba(15, 41, 68, calc(var(--r, 0) * 0.15 + var(--p, 0) * 0.5));
 }
 .curtain { box-shadow: 0 -20px 50px -20px rgba(20, 50, 80, 0.35); }
-.mini-footer a:hover { color: #eee0ca; }
+.shrink-frame { box-shadow: 0 30px 60px -35px rgba(20, 50, 80, calc(0.5 * var(--k))); }
+.site-nav { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 10px 30px -18px rgba(20, 50, 80, 0.45); }
+.sound-toggle { background: rgba(20, 50, 80, 0.55); }
+
+.mini-footer { color: var(--foot-text); }
+.mini-footer a { color: var(--foot-link); }
+.mini-footer a:hover { color: #ffffff; }
+
+.person-card span { color: #cad6e2; }
+.person-card em { color: #92a8be; }
+.discord-badge { box-shadow: 0 12px 24px -12px rgba(21, 109, 163, 0.9); }
+a.contact-tile:hover, .contact-tile:focus-within { box-shadow: 0 20px 40px -24px rgba(20, 50, 80, 0.45); }
 
 [data-theme="dark"] .person-card { background: #07111d; }
 [data-theme="dark"] .contact-icon { background: var(--honey); color: #fff; }
 [data-theme="dark"] .social-icons a:hover { background: var(--honey); border-color: var(--honey); color: #fff; }
 [data-theme="dark"] .mini-footer { border-top: 1px solid var(--line); }
-
-.shrink-frame { box-shadow: 0 30px 60px -35px rgba(20, 50, 80, calc(0.5 * var(--k))); }
+[data-theme="dark"] .mini-footer a:hover { color: #e8eef5; }
 
 /* ---------- Переключатель темы ---------- */
 .theme-toggle {

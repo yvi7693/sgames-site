@@ -67,7 +67,17 @@
               </button>
         </div>
         <div class="shrink-foot" data-shrink-foot>
-          <h1 class="hook"><span class="ph-text">[ХУК: 4–6 слов]</span></h1>
+          <div class="hook-line">
+            <!-- Чашка с паром: тонкая линия, пар медленно поднимается и тает -->
+            <svg class="cup" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path class="steam" d="M11 11c-1.5-1.6 1.5-3 0-5"/>
+              <path class="steam" d="M16 11c-1.5-1.6 1.5-3 0-5"/>
+              <path class="steam" d="M21 11c-1.5-1.6 1.5-3 0-5"/>
+              <path d="M6 15h20v4a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8z"/>
+              <path d="M26 17h1.5a2.5 2.5 0 0 1 0 5H25.4"/>
+            </svg>
+            <h1 class="hook"><span class="ph-text">[ХУК: 4–6 слов]</span></h1>
+          </div>
           <a class="btn btn-honey" data-steam href="#" target="_blank" rel="noopener"><svg class="heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg> Wishlist on Steam</a>
         </div>
       </div>
@@ -87,7 +97,7 @@
             <video autoplay muted loop playsinline preload="none"><source src="assets/video/feature-1.mp4" type="video/mp4"></video>
             <div class="ph-box" data-ph="ВИДЕО: фича 1"></div>
           </div>
-          <span class="trail-marker" aria-hidden="true">01</span>
+          <span class="trail-marker" aria-hidden="true">1</span>
           <div class="trail-text">
             <h3 class="trail-title"><span class="ph-text">[Фича 1]</span></h3>
             <p><span class="ph-text">[ТЕКСТ: 1–2 строки конкретики]</span></p>
@@ -98,7 +108,7 @@
             <video autoplay muted loop playsinline preload="none"><source src="assets/video/feature-2.mp4" type="video/mp4"></video>
             <div class="ph-box" data-ph="ВИДЕО: фича 2"></div>
           </div>
-          <span class="trail-marker" aria-hidden="true">02</span>
+          <span class="trail-marker" aria-hidden="true">2</span>
           <div class="trail-text">
             <h3 class="trail-title"><span class="ph-text">[Фича 2]</span></h3>
             <p><span class="ph-text">[ТЕКСТ: 1–2 строки конкретики]</span></p>
@@ -109,7 +119,7 @@
             <video autoplay muted loop playsinline preload="none"><source src="assets/video/feature-3.mp4" type="video/mp4"></video>
             <div class="ph-box" data-ph="ВИДЕО: фича 3"></div>
           </div>
-          <span class="trail-marker" aria-hidden="true">03</span>
+          <span class="trail-marker" aria-hidden="true">3</span>
           <div class="trail-text">
             <h3 class="trail-title"><span class="ph-text">[Фича 3]</span></h3>
             <p><span class="ph-text">[ТЕКСТ: 1–2 строки конкретики]</span></p>
@@ -139,7 +149,18 @@
 
     <!-- 5. Подпись студии -->
     <section class="container row" data-reveal>
-      <div class="madeby-title"><img class="madeby-logo" src="assets/img/s-games-logo-320.png" alt="" width="44" height="51"><h2 class="h-section">Made by S.Games</h2></div>
+      <div class="madeby-title"><img class="madeby-logo" src="assets/img/s-games-logo-320.png" alt="" width="44" height="51"><h2 class="h-section madeby-heading">Made by S.Games<!-- Котик спит на краю заголовка: дышит, над ним тают «z» -->
+        <span class="sleepy-cat" aria-hidden="true">
+          <svg viewBox="4 8 58 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <g class="cat-body">
+              <path d="M22 30C20 18 33 12 45 14c9 1.5 14 8 13 16"/>
+              <path d="M58 30c2-3 0-6-4-5-5 1.5-14 4-25 3.5"/>
+              <path d="M9 30c-2-6 0-10 2.5-12l-.5-6 4.5 3.5c1.6-.4 3.4-.4 5 0L25 12l-.5 6c2.4 2 3.4 7 1.5 12"/>
+              <path d="M12.5 23.5q1.5 1.2 3 0M18.5 23.5q1.5 1.2 3 0"/>
+            </g>
+          </svg>
+          <i>z</i><i>z</i>
+        </span></h2></div>
       <div class="row-body">
         <p><span class="ph-text">[ТЕКСТ: кто мы в 1–2 строки]</span></p>
         <a class="btn" href="about.html">About us</a>
@@ -155,6 +176,8 @@
       <a href="press.html">Press kit</a>
       <a href="privacy.html">Privacy policy</a>
     </div>
+    <!-- Дорожка с главной доходит сюда: несколько следов уходят за правый край -->
+    <div class="footer-paws" aria-hidden="true" data-footer-paws><span class="paw"></span><span class="paw"></span><span class="paw"></span><span class="paw"></span></div>
   </footer>
 
   <script src="site.js"></script>
